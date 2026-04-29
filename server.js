@@ -41,8 +41,8 @@ db.serialize(() => {
 
     // Seed Data
     db.get("SELECT COUNT(*) as count FROM posts", (err, row) => {
-        if (row.count === 0) {
-            db.run(`INSERT INTO users (name, email, password, role) VALUES ('Admin Owner', 'owner@econova.com', 'owner123', 'owner')`);
+        if (row && row.count === 0) {
+            db.run(`INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin Owner', 'owner@econova.com', 'owner123', 'owner')`);
             
             db.run(`INSERT INTO posts (author_name, location, time_ago, type, title, content, likes_count, comments_count) VALUES 
                 ('Elena Rodriguez', 'MADRID, ES', '2 HOURS AGO', 'REFORESTATION', 'Planted 50 native oaks in the Retiro buffer zone today.', 'The soil was perfect after the morning rain. Special thanks to the local nursery for the saplings!', 142, 18)`);
