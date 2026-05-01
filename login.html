@@ -1,52 +1,4 @@
-<?php
-session_start();
-$error = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    $conn = new mysqli("localhost", "root", "");
-    
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-    
-    // Create database if it doesn't exist
-    $conn->query("CREATE DATABASE IF NOT EXISTS econova_db");
-    $conn->select_db("econova_db");
-    
-    // Create users table if it doesn't exist
-    $table_sql = "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )";
-    $conn->query($table_sql);
-
-    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($row = $result->fetch_assoc()) {
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['user_name'] = $row['name'];
-            header("Location: index.php");
-            exit();
-        } else {
-            $error = "Invalid password.";
-        }
-    } else {
-        $error = "No user found with that email address.";
-    }
-    $stmt->close();
-    $conn->close();
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,8 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <header class="navbar">
         <div class="logo">Econova</div>
         <div class="nav-links">
-            <a href="login.php" class="login-link">LOGIN</a>
-            <a href="signup.php" class="join-btn" style="text-decoration: none; display: inline-block; text-align: center;">JOIN US</a>
+            <a href="login.html" class="login-link">LOGIN</a>
+            <a href="signup.html" class="join-btn" style="text-decoration: none; display: inline-block; text-align: center;">JOIN US</a>
         </div>
     </header>
 
@@ -100,10 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p class="subtitle">Please enter your details to access your account.</p>
 
                 <!-- Signup/Login form -->
-                <form action="login.php" method="POST" id="auth-form">
-                    <?php if (!empty($error)): ?>
-                        <div style="color: #e53e3e; background-color: #fff5f5; border-left: 4px solid #fc8181; padding: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border-radius: 4px;"><?php echo htmlspecialchars($error); ?></div>
-                    <?php endif; ?>
+                <form action="#" method="POST" id="auth-form">
+                    <div id="error-message" style="display:none; color: #e53e3e; background-color: #fff5f5; border-left: 4px solid #fc8181; padding: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border-radius: 4px;"></div>
                     <div class="input-group">
                         <label for="email">EMAIL ADDRESS</label>
                         <div class="input-wrapper">
@@ -141,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </form>
 
                 <div class="footer-text">
-                    New to the community? <a href="signup.php">Join Us</a>
+                    New to the community? <a href="signup.html">Join Us</a>
                 </div>
             </div>
         </section>
