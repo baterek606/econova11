@@ -5,7 +5,7 @@ session_start();
 // Note: For testing purposes, if you haven't implemented login yet, you can comment these 4 lines out
 // and hardcode a $user_id = 1; below.
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.html");
+    header("Location: login.php");
     exit();
 }
 $user_id = $_SESSION['user_id'];
@@ -146,10 +146,10 @@ $conn->close();
     
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo" style="color: var(--text-main);">Econova</a>
+      <a href="index.php" class="logo" style="color: var(--text-main);">Econova</a>
       
       <nav class="nav center-nav">
-        <a href="explore.html" class="nav-link">Explore</a>
+        <a href="explore.php" class="nav-link">Explore</a>
         <a href="#" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>
@@ -163,9 +163,9 @@ $conn->close();
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
-        <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, <span id="php-user-name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span></span>
+        <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
         <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
-        <a href="#" onclick="logoutUser(event)" class="btn btn-outline btn-sm">Logout</a>
+        <a href="logout.php" class="btn btn-outline btn-sm">Logout</a>
       </div>
     </header>
 

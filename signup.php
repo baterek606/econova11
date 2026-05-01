@@ -1,4 +1,63 @@
+<?php
+session_start();
+$error = '';
+$success = '';
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+    if (!empty($name) && !empty($email) && !empty($password)) {
+        $conn = new mysqli("localhost", "root", "");
+        
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        
+        // Create database if it doesn't exist
+        $conn->query("CREATE DATABASE IF NOT EXISTS econova_db");
+        $conn->select_db("econova_db");
+        
+        // Create users table if it doesn't exist
+        $table_sql = "CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )";
+        $conn->query($table_sql);
+
+        // Check if email already exists
+        $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $check_stmt->bind_param("s", $email);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+
+        if ($check_result->num_rows > 0) {
+            $error = "Email is already registered. Please log in.";
+        } else {
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $insert_stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+            $insert_stmt->bind_param("sss", $name, $email, $hashed_password);
+            
+            if ($insert_stmt->execute()) {
+                // Success, redirect to login page
+                header("Location: login.php");
+                exit();
+            } else {
+                $error = "An error occurred while creating your account.";
+            }
+            $insert_stmt->close();
+        }
+        $check_stmt->close();
+        $conn->close();
+    } else {
+        $error = "Please fill in all fields.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,8 +79,8 @@
     <header class="header">
       <div class="logo">Econova</div>
       <nav class="nav">
-        <a href="login.html" class="nav-link">LOGIN</a>
-        <a href="signup.html" class="btn btn-dark">JOIN US</a>
+        <a href="login.php" class="nav-link">LOGIN</a>
+        <a href="signup.php" class="btn btn-dark">JOIN US</a>
       </nav>
     </header>
 
@@ -96,8 +155,10 @@
           </div>
 
 
-          <form id="signupForm" class="form" action="#" method="POST">
-            <div id="error-message" style="display:none; color: #e53e3e; background-color: #fff5f5; border-left: 4px solid #fc8181; padding: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border-radius: 4px;"></div>
+          <form id="signupForm" class="form" action="signup.php" method="POST">
+            <?php if (!empty($error)): ?>
+                <div style="color: #e53e3e; background-color: #fff5f5; border-left: 4px solid #fc8181; padding: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border-radius: 4px;"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
             <div class="form-group">
               <label for="fullName">FULL NAME</label>
               <input type="text" id="fullName" name="name" placeholder="Alex Rivers" required>
@@ -130,7 +191,7 @@
           </form>
 
           <div class="form-footer">
-            Already have an account? <a href="login.html" class="link-green">Sign In</a>
+            Already have an account? <a href="login.php" class="link-green">Sign In</a>
           </div>
         </div>
       </section>

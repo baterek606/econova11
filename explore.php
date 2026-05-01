@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,10 +18,10 @@
     
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo" style="color: var(--text-main);">Econova</a>
+      <a href="index.php" class="logo" style="color: var(--text-main);">Econova</a>
       
       <nav class="nav center-nav">
-        <a href="explore.html" class="nav-link active">Explore</a>
+        <a href="explore.php" class="nav-link active">Explore</a>
         <a href="#" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>
@@ -33,10 +34,14 @@
         <div class="icons">
           <!-- We can remove the static avatar since script.js updateNavbar handles it -->
         </div>
-        <div id="auth-buttons" style="display: flex; align-items: center;">
-          <a href="login.html" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
-          <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
-        </div>
+        <?php if(isset($_SESSION['user_id'])): ?>
+          <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+          <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
+          <a href="logout.php" class="btn btn-outline btn-sm">Logout</a>
+        <?php else: ?>
+          <a href="login.php" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
+          <a href="signup.php" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
+        <?php endif; ?>
       </div>
     </header>
 
