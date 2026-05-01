@@ -1,39 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Econova - Home</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="page-container">
-    
+
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo" style="color: var(--text-main);">Econova</a>
-      
+      <a href="index.html" class="logo">Econova</a>
+
       <nav class="nav center-nav">
         <a href="explore.html" class="nav-link active">Explore</a>
-        <a href="#" class="nav-link">Campaigns</a>
+        <a href="campaigns.html" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>
 
       <div class="nav-actions">
         <div class="search-box">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
           <input type="text" placeholder="Search stewardship...">
         </div>
         <div class="icons">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </div>
-        <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Create</a>
+        <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
+          <a href="login.html" class="login-link">Login</a>
+          <a href="signup.html" class="btn-join">Join Us</a>
+        </div>
       </div>
     </header>
 
@@ -48,11 +62,13 @@
             Nurturing Earth, one<br>community at a time.
           </h1>
           <p class="hero-desc">
-            Join thousands of stewards transforming their local environments. See the direct impact of collective action in real-time.
+            Join thousands of stewards transforming their local environments. See the direct impact of collective action
+            in real-time.
           </p>
           <div class="hero-actions">
             <a href="signup.html" class="btn btn-dark" style="text-decoration:none;">Start a Campaign &rarr;</a>
-            <button class="btn btn-outline" style="border-color: var(--text-green); color: var(--text-green);">View Global Map</button>
+            <button class="btn btn-outline" style="border-color: var(--text-green); color: var(--text-green);">View
+              Global Map</button>
           </div>
         </div>
         <div class="hero-images">
@@ -63,10 +79,14 @@
             <div class="split-label right">BEFORE</div>
             <div class="split-slider" id="splitSlider">
               <div class="slider-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="7 13 12 18 17 13"></polyline>
+                  <polyline points="7 6 12 11 17 6"></polyline>
+                </svg>
               </div>
             </div>
-            <input type="range" min="0" max="100" value="50" id="sliderInput" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:col-resize; z-index:10;">
+            <input type="range" min="0" max="100" value="50" id="sliderInput"
+              style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:col-resize; z-index:10;">
           </div>
           <p class="image-caption">Community Spotlight: Bali Coastline Restoration, August 2024</p>
         </div>
@@ -80,33 +100,58 @@
             <p class="section-subtitle">Daily time updates from stewards across the globe</p>
           </div>
           <div class="feed-controls">
-            <button class="icon-btn active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button>
-            <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button>
+            <button class="icon-btn active"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg></button>
+            <button class="icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg></button>
           </div>
         </div>
 
         <div class="feed-grid">
           <!-- Column 1: Trending -->
           <div class="feed-col">
-            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg> TRENDING NOW</h3>
+            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+              </svg> TRENDING NOW</h3>
             <div id="postsContainer"></div>
           </div>
 
           <!-- Column 2: Active Campaigns -->
           <div class="feed-col">
-            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> ACTIVE CAMPAIGNS</h3>
+            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg> ACTIVE CAMPAIGNS</h3>
             <div id="campaignsContainer"></div>
           </div>
 
           <!-- Column 3: Impact & Stewards -->
           <div class="feed-col">
-            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg> COMMUNITY IMPACT</h3>
+            <h3 class="col-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg> COMMUNITY IMPACT</h3>
             <div id="statsContainer"></div>
             <div class="card" style="margin-top: 24px;">
               <div class="card-content">
                 <p class="title-small">Top Stewards this Month</p>
                 <div class="steward-list" id="stewardsContainer"></div>
-                <button class="btn btn-outline w-full" style="padding: 8px; font-size: 13px; margin-top: 16px;">View Leaderboard</button>
+                <button class="btn btn-outline w-full" style="padding: 8px; font-size: 13px; margin-top: 16px;">View
+                  Leaderboard</button>
               </div>
             </div>
           </div>
@@ -114,12 +159,13 @@
       </section>
 
     </main>
-    
+
     <footer class="footer">
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo">Econova</div>
-          <p>Nurturing stewardship for a sustainable future. Empowering communities to take ownership of their local environment through collective action.</p>
+          <p>Nurturing stewardship for a sustainable future. Empowering communities to take ownership of their local
+            environment through collective action.</p>
           <div class="socials">
             <span>🌐</span><span>✉️</span><span>🔗</span>
           </div>
@@ -151,7 +197,7 @@
     const sliderInput = document.getElementById('sliderInput');
     const splitSlider = document.getElementById('splitSlider');
     const imgRight = document.getElementById('imgRight');
-    
+
     if (sliderInput) {
       sliderInput.addEventListener('input', (e) => {
         const val = e.target.value;
@@ -162,4 +208,5 @@
   </script>
   <script src="script.js"></script>
 </body>
+
 </html>

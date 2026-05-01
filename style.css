@@ -378,12 +378,63 @@ input {
   }
 }
 
-/* HOME PAGE SPECIFIC STYLES */
-.home-header { padding: 16px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 40px; }
+/* HOME PAGE & GLOBAL NAVBAR SPECIFIC STYLES */
+.home-header { 
+  position: sticky; 
+  top: 0; 
+  z-index: 100; 
+  background: white; 
+  padding: 16px 40px; 
+  border-bottom: 1px solid var(--border-color); 
+  margin-bottom: 40px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home-header .logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d6a4f !important; /* Override inline styles if any */
+}
+
 .center-nav { display: flex; gap: 32px; flex: 1; justify-content: center; }
-.center-nav a { font-weight: 500; font-size: 14px; color: var(--text-muted); }
-.center-nav a.active { color: var(--text-green); border-bottom: 2px solid var(--text-green); padding-bottom: 4px; }
+.center-nav a { font-weight: 500; font-size: 14px; color: var(--text-muted); transition: color 0.2s; }
+.center-nav a.active { color: #2d6a4f !important; border-bottom: 2px solid #2d6a4f !important; padding-bottom: 4px; font-weight: 600; }
+.center-nav a:hover { color: #2d6a4f; }
+
 .nav-actions { display: flex; align-items: center; gap: 16px; }
+
+.login-link {
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  transition: color 0.2s;
+}
+
+.login-link:hover {
+  color: #1a202c;
+}
+
+.btn-join {
+  background-color: #2d6a4f;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  display: inline-block;
+  border: none;
+}
+
+.btn-join:hover {
+  opacity: 0.8;
+}
+
 .search-box { display: flex; align-items: center; background: var(--bg-input); padding: 8px 16px; border-radius: 20px; gap: 8px; }
 .search-box input { background: transparent; border: none; outline: none; font-size: 13px; color: var(--text-main); }
 .icons { display: flex; gap: 12px; color: var(--text-main); cursor: pointer; }

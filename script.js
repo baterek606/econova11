@@ -97,31 +97,12 @@ const isOwner = currentUser && currentUser.role === 'owner';
 function updateNavbar() {
   if (!currentUser) return;
   
-  const navContainer1 = document.querySelector('.nav');
-  if (navContainer1 && !navContainer1.classList.contains('center-nav')) { // Don't replace index.html center nav
-    navContainer1.innerHTML = `
-      <span class="nav-link" style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-      <button onclick="logout()" class="btn btn-outline btn-sm" style="padding: 6px 12px;">Logout</button>
+  const authWrapper = document.getElementById('authWrapper');
+  if (authWrapper) {
+    authWrapper.innerHTML = `
+      <span style="font-weight: 600; color: #2d6a4f; font-size: 14px;">Hi, ${currentUser.name}</span>
+      <button onclick="logout()" style="background: transparent; color: #4a5568; border: 1px solid #EAE6DE; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f5f7fa'" onmouseout="this.style.background='transparent'">Logout</button>
     `;
-  }
-  
-  const navContainer2 = document.querySelector('.nav-links');
-  if (navContainer2) {
-    navContainer2.innerHTML = `
-      <span class="login-link" style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-      <button onclick="logout()" class="join-btn" style="padding: 6px 12px; background: transparent; color: var(--text-main); border: 1px solid var(--text-main);">Logout</button>
-    `;
-  }
-  
-  const navActions = document.querySelector('.nav-actions');
-  if (navActions) {
-    const createBtn = navActions.querySelector('a.btn-dark');
-    if (createBtn) {
-      createBtn.outerHTML = `
-        <span style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-        <button onclick="logout()" class="btn btn-outline btn-sm">Logout</button>
-      `;
-    }
   }
 }
 

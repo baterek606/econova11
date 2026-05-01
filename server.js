@@ -25,10 +25,12 @@ db.serialize(() => {
         title TEXT, content TEXT, article_link TEXT,
         likes_count INTEGER DEFAULT 0, comments_count INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-    db.run(`CREATE TABLE IF NOT EXISTS campaigns (
+    db.run(`DROP TABLE IF EXISTS campaigns`);
+    db.run(`CREATE TABLE campaigns (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT, description TEXT, target_amount INTEGER, raised_amount INTEGER,
-        days_left INTEGER, engagement_count INTEGER, badge TEXT
+        title TEXT, location TEXT, status TEXT, date TEXT,
+        category TEXT, stewards_count INTEGER, progress_percent INTEGER,
+        description TEXT, image_url TEXT
     )`);
     db.run(`CREATE TABLE IF NOT EXISTS impact_stats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,6 +62,20 @@ db.serialize(() => {
                 ('Marcus Thorne', 'Oregon Highlands', 'A New Canopy', 'Cleared out decades of trash from the forest floor, allowing new saplings to finally thrive.', 'forest', 0, 0, 'forest_before.png', 'forest_after.png')`);
             db.run(`INSERT INTO explore_posts (user_name, user_location, title, description, category, likes_count, comments_count, before_image, after_image) VALUES 
                 ('David Chen', 'River Delta', 'Reviving the Delta', 'Initiated a massive cleanup project that removed floating plastic and restored water clarity.', 'river', 0, 0, 'https://images.unsplash.com/photo-1621451537084-482c73073e0f?auto=format&fit=crop&q=80&w=600', 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&q=80&w=600')`);
+        }
+    });
+
+    // Seed data for Campaigns
+    db.get("SELECT COUNT(*) as count FROM campaigns", (err, row) => {
+        if (row && row.count === 0) {
+            db.run(`INSERT INTO campaigns (title, location, status, date, category, stewards_count, progress_percent, image_url) VALUES 
+                ('Nile River Plastic Cleanup', 'Cairo, Egypt (Maadi Corniche)', 'ACTIVE', 'Nov 15, 2024', 'Coastal', 87, 64, 'https://images.unsplash.com/photo-1621451537084-482c73073e0f?auto=format&fit=crop&q=80&w=600')`);
+            db.run(`INSERT INTO campaigns (title, location, status, date, category, stewards_count, progress_percent, image_url) VALUES 
+                ('Wadi Degla Protectorate Restoration', 'Cairo, Egypt (Maadi)', 'ACTIVE', 'Oct 28, 2024', 'Forest', 112, 73, 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600')`);
+            db.run(`INSERT INTO campaigns (title, location, status, date, category, stewards_count, progress_percent, image_url) VALUES 
+                ('Alexandria Beach Cleanup', 'Alexandria, Egypt (Montazah Beach)', 'NEW', 'Dec 01, 2024', 'Coastal', 45, 28, 'https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc9?auto=format&fit=crop&q=80&w=600')`);
+            db.run(`INSERT INTO campaigns (title, location, status, date, category, stewards_count, progress_percent, image_url) VALUES 
+                ('Urban Green Roof Initiative', 'Giza, Egypt (Zamalek)', 'NEW', 'Jan 10, 2025', 'Urban', 32, 18, 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&q=80&w=600')`);
         }
     });
 
@@ -103,7 +119,15 @@ app.delete('/api/posts/:id', (req, res) => {
 });
 
 app.get('/api/campaigns', (req, res) => {
-    db.all("SELECT * FROM campaigns", [], (err, rows) => {
+    const category = req.query.category;
+    let query = "SELECT * FROM campaigns";
+    let params = [];
+    if (category && category !== 'all' && category !== 'All Types') {
+        query += " WHERE LOWER(category) = LOWER(?)";
+        params.push(category);
+    }
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });

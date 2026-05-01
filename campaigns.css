@@ -1,0 +1,352 @@
+/* campaigns.css */
+
+.campaigns-page {
+  background-color: #FAF8F2;
+}
+
+.campaigns-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.page-description {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 600px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
+/* Filter Bar */
+.campaigns-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filter-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 24px;
+  padding: 8px 16px;
+  width: 250px;
+  border: 1px solid #e0e0e0;
+}
+
+.filter-input-wrapper input {
+  border: none;
+  outline: none;
+  margin-left: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.category-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.cat-btn {
+  background: #F0EFEA;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  color: #444;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.cat-btn:hover {
+  background: #e2e1dc;
+}
+
+.cat-btn.active {
+  background: #395D4A;
+  color: white;
+}
+
+.sort-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.sort-dropdown strong {
+  color: #1a1a1a;
+}
+
+/* Grid & Cards */
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.campaign-card {
+  display: flex;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  height: 240px;
+}
+
+.card-image-wrapper {
+  position: relative;
+  flex: 0 0 220px;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+}
+
+.card-badge.ACTIVE {
+  background: #395D4A;
+}
+
+.card-badge.UPCOMING {
+  background: #D97706;
+}
+
+.card-badge.NEW {
+  background: #2563EB;
+}
+
+.card-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-date {
+  font-size: 0.8rem;
+  color: #395D4A;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.3;
+  margin-bottom: 16px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.card-meta svg {
+  flex-shrink: 0;
+}
+
+.card-bottom {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.progress-container {
+  flex: 1;
+  margin-right: 24px;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: #E5E7EB;
+  border-radius: 2px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #395D4A;
+  border-radius: 2px;
+}
+
+.join-btn {
+  background: #1B2922;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.join-btn:hover {
+  opacity: 0.9;
+}
+
+/* Newsletter Section - Side-by-Side Design */
+.newsletter-section {
+  background: #1B2922;
+  border-radius: 24px;
+  overflow: hidden;
+  margin: 80px auto;
+  max-width: 1000px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  padding: 40px;
+}
+
+.newsletter-content {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.newsletter-text {
+  flex: 1;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.newsletter-text h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: white;
+}
+
+.newsletter-text p {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin-bottom: 32px;
+  font-size: 15px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.newsletter-form input {
+  background: white;
+  border: 1px solid transparent;
+  padding: 14px 20px;
+  border-radius: 8px;
+  color: var(--text-main);
+  flex: 1;
+  outline: none;
+  font-size: 14px;
+}
+
+.newsletter-form input:focus {
+  border-color: #2d6a4f;
+}
+
+.btn-subscribe {
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-subscribe:hover {
+  background: #1f4a37;
+}
+
+.newsletter-image {
+  flex: 1;
+  display: flex;
+}
+
+.newsletter-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+
+
+@media (max-width: 768px) {
+  .campaigns-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .newsletter-content {
+    flex-direction: column;
+  }
+
+  .newsletter-image {
+    min-height: 250px;
+    width: 100%;
+  }
+
+  .newsletter-text {
+    padding: 40px 24px;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .newsletter-form input {
+    width: 100%;
+  }
+
+  .btn-subscribe {
+    width: 100%;
+  }
+}
