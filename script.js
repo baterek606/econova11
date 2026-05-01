@@ -1,3 +1,6 @@
+let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+const isOwner = false;
+
 document.addEventListener('DOMContentLoaded', () => {
   // Existing Toggle Logic
   const toggleBtn = document.getElementById('togglePassword');
@@ -79,20 +82,101 @@ document.addEventListener('DOMContentLoaded', () => {
     initFilters();
   }
 
+  // Update Navbar
   updateNavbar();
+
+  // Auth Forms
+  const authForm = document.getElementById('auth-form');
+  if (authForm) {
+    authForm.addEventListener('submit', handleLogin);
+  }
+
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', handleSignup);
+  }
 });
 
-let currentUser = null;
-try {
-  const userStr = localStorage.getItem('user');
-  if (userStr && userStr !== 'undefined') {
-    currentUser = JSON.parse(userStr);
+function updateNavbar() {
+  const authButtons = document.getElementById('auth-buttons');
+  if (!authButtons) return;
+
+  if (currentUser) {
+    authButtons.innerHTML = `
+      <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
+      <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
+      <a href="#" onclick="logoutUser(event)" class="btn btn-outline btn-sm">Logout</a>
+    `;
+  } else {
+    authButtons.innerHTML = `
+      <a href="login.html" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
+      <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
+    `;
   }
-} catch (e) {
-  console.error('Error parsing user', e);
-  localStorage.removeItem('user');
 }
-const isOwner = currentUser && currentUser.role === 'owner';
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const errorMsg = document.getElementById('error-message');
+
+  try {
+    const response = await fetch('api_login.php', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
+      window.location.href = 'index.html';
+    } else {
+      errorMsg.style.display = 'block';
+      errorMsg.textContent = result.error;
+    }
+  } catch (error) {
+    errorMsg.style.display = 'block';
+    errorMsg.textContent = 'An error occurred during login.';
+  }
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const errorMsg = document.getElementById('error-message');
+
+  try {
+    const response = await fetch('api_signup.php', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      window.location.href = 'login.html';
+    } else {
+      errorMsg.style.display = 'block';
+      errorMsg.textContent = result.error;
+    }
+  } catch (error) {
+    errorMsg.style.display = 'block';
+    errorMsg.textContent = 'An error occurred during signup.';
+  }
+}
+
+async function logoutUser(e) {
+  if (e) e.preventDefault();
+  try {
+    await fetch('api_logout.php');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+  } catch (error) {
+    console.error('Logout failed', error);
+  }
+}
+
 
 function updateNavbar() {
   if (!currentUser) return;
