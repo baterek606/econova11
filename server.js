@@ -38,27 +38,37 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT, points INTEGER, avatar_id INTEGER
     )`);
+    db.run(`CREATE TABLE IF NOT EXISTS explore_posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_name TEXT, user_location TEXT, title TEXT, description TEXT,
+        category TEXT, likes_count INTEGER DEFAULT 0, comments_count INTEGER DEFAULT 0,
+        before_image TEXT, after_image TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS community_goal (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT, current_amount INTEGER, target_amount INTEGER
+    )`);
 
-    // Seed Data
-    db.get("SELECT COUNT(*) as count FROM posts", (err, row) => {
+    // Seed data for Explore
+    db.get("SELECT COUNT(*) as count FROM explore_posts", (err, row) => {
         if (row && row.count === 0) {
-            db.run(`INSERT OR IGNORE INTO users (name, email, password, role) VALUES ('Admin Owner', 'owner@econova.com', 'owner123', 'owner')`);
-            
-            db.run(`INSERT INTO posts (author_name, location, time_ago, type, title, content, likes_count, comments_count) VALUES 
-                ('Elena Rodriguez', 'MADRID, ES', '2 HOURS AGO', 'REFORESTATION', 'Planted 50 native oaks in the Retiro buffer zone today.', 'The soil was perfect after the morning rain. Special thanks to the local nursery for the saplings!', 142, 18)`);
-            db.run(`INSERT INTO posts (author_name, type, title, article_link, likes_count, comments_count) VALUES 
-                ('Solar Guild', 'ARTICLE', 'How to audit your community''s energy waste in 3 steps.', '#', 50, 5)`);
-            
-            db.run(`INSERT INTO campaigns (title, description, target_amount, raised_amount, days_left, badge) VALUES 
-                ('Save the Mangroves: Phase 2', 'Targeting 5,000 new seedlings along the coast of Queensland by the end of Q4.', 15000, 12450, 12, 'URGENT')`);
-            db.run(`INSERT INTO campaigns (title, description, engagement_count, badge) VALUES 
-                ('Neighborhood Composting', 'Join 400+ households in Brooklyn reducing landfill waste.', 412, '')`);
-            
-            db.run(`INSERT INTO impact_stats (co2_offset, trees_planted, water_liters) VALUES ('24.8k', '142,000', '2.1M')`);
-            
-            db.run(`INSERT INTO stewards (name, points, avatar_id) VALUES ('Marcus Chen', 1240, 11), ('Sarah Jenkins', 980, 5), ('David Thorne', 850, 8)`);
+            db.run(`INSERT INTO explore_posts (user_name, user_location, title, description, category, likes_count, comments_count, before_image, after_image) VALUES 
+                ('Sarah Jenkins', 'Pismo Beach, CA', 'Restoring the Shoreline', 'Removed 450lbs of microplastics in just one weekend with local students.', 'beach', 0, 0, 'beach_before.png', 'beach_after.png')`);
+            db.run(`INSERT INTO explore_posts (user_name, user_location, title, description, category, likes_count, comments_count, before_image, after_image) VALUES 
+                ('Elena Rossi', 'Brooklyn, NY', 'Concrete to Compost', 'Transformed a vacant lot filled with rubble into a thriving food oasis for 50 families.', 'urban', 0, 0, 'urban_before.png', 'urban_after.png')`);
+            db.run(`INSERT INTO explore_posts (user_name, user_location, title, description, category, likes_count, comments_count, before_image, after_image) VALUES 
+                ('Marcus Thorne', 'Oregon Highlands', 'A New Canopy', 'Cleared out decades of trash from the forest floor, allowing new saplings to finally thrive.', 'forest', 0, 0, 'forest_before.png', 'forest_after.png')`);
+            db.run(`INSERT INTO explore_posts (user_name, user_location, title, description, category, likes_count, comments_count, before_image, after_image) VALUES 
+                ('David Chen', 'River Delta', 'Reviving the Delta', 'Initiated a massive cleanup project that removed floating plastic and restored water clarity.', 'river', 0, 0, 'https://images.unsplash.com/photo-1621451537084-482c73073e0f?auto=format&fit=crop&q=80&w=600', 'https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&q=80&w=600')`);
         }
     });
+
+    db.get("SELECT COUNT(*) as count FROM community_goal", (err, row) => {
+        if (row && row.count === 0) {
+            db.run(`INSERT INTO community_goal (title, current_amount, target_amount) VALUES ('Help us plant 10,000 native trees by winter.', 7450, 10000)`);
+        }
+    });
+
 });
 
 // API Routes
@@ -162,6 +172,41 @@ app.post('/api/auth/login', (req, res) => {
         } else {
             res.status(401).json({ error: "Invalid credentials" });
         }
+    });
+});
+
+app.get('/api/explore/posts', (req, res) => {
+    const category = req.query.category;
+    let query = "SELECT * FROM explore_posts";
+    let params = [];
+    if (category && category !== 'all') {
+        query += " WHERE category = ?";
+        params.push(category);
+    }
+    query += " ORDER BY (likes_count + comments_count) DESC";
+    
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.get('/api/explore/goal', (req, res) => {
+    db.get("SELECT * FROM community_goal LIMIT 1", [], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row);
+    });
+});
+
+app.post('/api/explore/posts/:id/like', (req, res) => {
+    db.run("UPDATE explore_posts SET likes_count = likes_count + 1 WHERE id = ?", [req.params.id], err => {
+        res.json({ success: true });
+    });
+});
+
+app.post('/api/explore/posts/:id/comment', (req, res) => {
+    db.run("UPDATE explore_posts SET comments_count = comments_count + 1 WHERE id = ?", [req.params.id], err => {
+        res.json({ success: true });
     });
 });
 
