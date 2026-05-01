@@ -1,3 +1,52 @@
+<?php
+session_start();
+$error = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    $conn = new mysqli("localhost", "root", "");
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    
+    // Create database if it doesn't exist
+    $conn->query("CREATE DATABASE IF NOT EXISTS econova_db");
+    $conn->select_db("econova_db");
+    
+    // Create users table if it doesn't exist
+    $table_sql = "CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+    $conn->query($table_sql);
+
+    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['user_name'] = $row['name'];
+            header("Location: index.php");
+            exit();
+        } else {
+            $error = "Invalid password.";
+        }
+    } else {
+        $error = "No user found with that email address.";
+    }
+    $stmt->close();
+    $conn->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,8 +63,8 @@
     <header class="navbar">
         <div class="logo">Econova</div>
         <div class="nav-links">
-            <a href="login.html" class="login-link">LOGIN</a>
-            <a href="signup.html" class="join-btn" style="text-decoration: none; display: inline-block; text-align: center;">JOIN US</a>
+            <a href="login.php" class="login-link">LOGIN</a>
+            <a href="signup.php" class="join-btn" style="text-decoration: none; display: inline-block; text-align: center;">JOIN US</a>
         </div>
     </header>
 
@@ -51,11 +100,14 @@
                 <p class="subtitle">Please enter your details to access your account.</p>
 
                 <!-- Signup/Login form -->
-                <form action="#" method="POST" id="auth-form">
+                <form action="login.php" method="POST" id="auth-form">
+                    <?php if (!empty($error)): ?>
+                        <div style="color: #e53e3e; background-color: #fff5f5; border-left: 4px solid #fc8181; padding: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 500; border-radius: 4px;"><?php echo htmlspecialchars($error); ?></div>
+                    <?php endif; ?>
                     <div class="input-group">
                         <label for="email">EMAIL ADDRESS</label>
                         <div class="input-wrapper">
-                            <input type="email" id="email" placeholder="hello@econova.org" required>
+                            <input type="email" id="email" name="email" placeholder="hello@econova.org" required>
                             <span class="icon">@</span>
                         </div>
                     </div>
@@ -63,7 +115,7 @@
                     <div class="input-group">
                         <label for="password">PASSWORD</label>
                         <div class="input-wrapper">
-                            <input type="password" id="password" placeholder="••••••••" required>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
                             <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -89,7 +141,7 @@
                 </form>
 
                 <div class="footer-text">
-                    New to the community? <a href="signup.html">Join Us</a>
+                    New to the community? <a href="signup.php">Join Us</a>
                 </div>
             </div>
         </section>

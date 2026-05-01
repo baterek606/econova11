@@ -1,3 +1,6 @@
+let currentUser = null;
+const isOwner = false;
+
 document.addEventListener('DOMContentLoaded', () => {
   // Existing Toggle Logic
   const toggleBtn = document.getElementById('togglePassword');
@@ -15,55 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Signup Logic
-  const signupForm = document.getElementById('signupForm');
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('fullName').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
 
-      if (!name || !email || !password) {
-        return alert('Please fill in all fields');
-      }
-
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (users.find(u => u.email === email)) {
-        return alert('Email already registered. Please log in.');
-      }
-
-      const user = { name, email, password, role: 'user' };
-      users.push(user);
-      localStorage.setItem('users', JSON.stringify(users));
-      localStorage.setItem('user', JSON.stringify(user));
-      window.location.href = 'index.html';
-    });
-  }
-
-  // Login Logic
-  const loginForm = document.getElementById('auth-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      if (!email || !password) {
-        return alert('Please enter both email and password');
-      }
-
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find(u => u.email === email && u.password === password);
-      
-      if (!user) {
-          return alert('Invalid email or password');
-      }
-
-      localStorage.setItem('user', JSON.stringify(user));
-      window.location.href = 'index.html';
-    });
-  }
 
   // Fetching Data Logic for Home Page
   const postsContainer = document.getElementById('postsContainer');
@@ -78,57 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderExplorePosts(explorePosts);
     initFilters();
   }
-
-  updateNavbar();
 });
 
-let currentUser = null;
-try {
-  const userStr = localStorage.getItem('user');
-  if (userStr && userStr !== 'undefined') {
-    currentUser = JSON.parse(userStr);
-  }
-} catch (e) {
-  console.error('Error parsing user', e);
-  localStorage.removeItem('user');
-}
-const isOwner = currentUser && currentUser.role === 'owner';
 
-function updateNavbar() {
-  if (!currentUser) return;
-  
-  const navContainer1 = document.querySelector('.nav');
-  if (navContainer1 && !navContainer1.classList.contains('center-nav')) { // Don't replace index.html center nav
-    navContainer1.innerHTML = `
-      <span class="nav-link" style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-      <button onclick="logout()" class="btn btn-outline btn-sm" style="padding: 6px 12px;">Logout</button>
-    `;
-  }
-  
-  const navContainer2 = document.querySelector('.nav-links');
-  if (navContainer2) {
-    navContainer2.innerHTML = `
-      <span class="login-link" style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-      <button onclick="logout()" class="join-btn" style="padding: 6px 12px; background: transparent; color: var(--text-main); border: 1px solid var(--text-main);">Logout</button>
-    `;
-  }
-  
-  const navActions = document.querySelector('.nav-actions');
-  if (navActions) {
-    const createBtn = navActions.querySelector('a.btn-dark');
-    if (createBtn) {
-      createBtn.outerHTML = `
-        <span style="font-weight: 600; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-        <button onclick="logout()" class="btn btn-outline btn-sm">Logout</button>
-      `;
-    }
-  }
-}
-
-window.logout = function() {
-  localStorage.removeItem('user');
-  window.location.href = 'login.html';
-}
 
 async function fetchData() {
   try {

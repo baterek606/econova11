@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,10 +17,10 @@
     
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo" style="color: var(--text-main);">Econova</a>
+      <a href="index.php" class="logo" style="color: var(--text-main);">Econova</a>
       
       <nav class="nav center-nav">
-        <a href="explore.html" class="nav-link active">Explore</a>
+        <a href="explore.php" class="nav-link active">Explore</a>
         <a href="#" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>
@@ -33,7 +34,14 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
-        <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Create</a>
+        <?php if(isset($_SESSION['user_id'])): ?>
+          <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+          <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
+          <a href="logout.php" class="btn btn-outline btn-sm">Logout</a>
+        <?php else: ?>
+          <a href="login.php" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
+          <a href="signup.php" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
+        <?php endif; ?>
       </div>
     </header>
 
@@ -51,7 +59,7 @@
             Join thousands of stewards transforming their local environments. See the direct impact of collective action in real-time.
           </p>
           <div class="hero-actions">
-            <a href="signup.html" class="btn btn-dark" style="text-decoration:none;">Start a Campaign &rarr;</a>
+            <a href="signup.php" class="btn btn-dark" style="text-decoration:none;">Start a Campaign &rarr;</a>
             <button class="btn btn-outline" style="border-color: var(--text-green); color: var(--text-green);">View Global Map</button>
           </div>
         </div>
