@@ -9,7 +9,7 @@
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-* {
+/* * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -23,14 +23,15 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-}
+} */
 
 a {
     color: inherit;
     text-decoration: none;
 }
 
-button, input {
+button,
+input {
     font-family: inherit;
 }
 
@@ -104,7 +105,7 @@ button, input {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0) 100%);
 }
 
 .left-content {
@@ -252,12 +253,12 @@ h2 {
     justify-content: center;
 }
 
-.checkbox-container input:checked ~ .checkmark {
+.checkbox-container input:checked~.checkmark {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
 }
 
-.checkbox-container input:checked ~ .checkmark:after {
+.checkbox-container input:checked~.checkmark:after {
     content: "";
     width: 4px;
     height: 8px;
@@ -309,13 +310,16 @@ h2 {
     .container {
         flex-direction: column;
     }
+
     .left-panel {
         padding: 6rem 2rem 3rem;
         min-height: 50vh;
     }
+
     .right-panel {
         padding: 3rem 2rem;
     }
+
     .navbar {
         padding: 1.5rem 2rem;
     }

@@ -1,56 +1,54 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 86400 * 30,
+    'path' => '/',
+    'secure' => false,
+    'httponly' => true
+]);
 session_start();
-header('Content-Type: application/json');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $conn = new mysqli("localhost", "root", "");
-    
-    if ($conn->connect_error) {
-        echo json_encode(["success" => false, "error" => "Database connection failed."]);
+    try {
+        $db = new SQLite3('econova.db');
+        
+        $db->exec("CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $stmt = $db->prepare("SELECT id, name, email, password FROM users WHERE email = :email");
+        $stmt->bindValue(':email', $email, SQLITE3_TEXT);
+        $result = $stmt->execute();
+        
+        if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (password_verify($password, $row['password'])) {
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['user_name'] = $row['name'];
+                $_SESSION['user_email'] = $row['email'];
+                
+                header("Location: index.php?success=" . urlencode("Welcome back, " . $row['name'] . "!"));
+                exit();
+            } else {
+                header("Location: login.php?error=" . urlencode("Wrong password. Please try again."));
+                exit();
+            }
+        } else {
+            header("Location: login.php?error=" . urlencode("Email not found. Create an account first."));
+            exit();
+        }
+        $db->close();
+    } catch (Exception $e) {
+        header("Location: login.php?error=" . urlencode("Database error"));
         exit();
     }
-    
-    $conn->query("CREATE DATABASE IF NOT EXISTS econova_db");
-    $conn->select_db("econova_db");
-    
-    $table_sql = "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )";
-    $conn->query($table_sql);
-
-    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($row = $result->fetch_assoc()) {
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['user_name'] = $row['name'];
-            echo json_encode([
-                "success" => true, 
-                "user" => [
-                    "id" => $row['id'], 
-                    "name" => $row['name'], 
-                    "email" => $email
-                ]
-            ]);
-        } else {
-            echo json_encode(["success" => false, "error" => "Invalid password."]);
-        }
-    } else {
-        echo json_encode(["success" => false, "error" => "No user found with that email address."]);
-    }
-    $stmt->close();
-    $conn->close();
 } else {
-    echo json_encode(["success" => false, "error" => "Invalid request method."]);
+    header("Location: login.php");
+    exit();
 }
 ?>
