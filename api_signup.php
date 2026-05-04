@@ -1,6 +1,11 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 86400 * 30,
+    'path' => '/',
+    'secure' => false,
+    'httponly' => true
+]);
 session_start();
-header('Content-Type: application/json');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name'] ?? '');
@@ -8,50 +13,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'] ?? '';
 
     if (!empty($name) && !empty($email) && !empty($password)) {
-        $conn = new mysqli("localhost", "root", "");
-        
-        if ($conn->connect_error) {
-            echo json_encode(["success" => false, "error" => "Connection failed."]);
+        try {
+            $db = new SQLite3('econova.db');
+            
+            $db->exec("CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )");
+
+            $check_stmt = $db->prepare("SELECT id FROM users WHERE email = :email");
+            $check_stmt->bindValue(':email', $email, SQLITE3_TEXT);
+            $check_result = $check_stmt->execute();
+
+            if ($check_result->fetchArray(SQLITE3_ASSOC)) {
+                header("Location: signup.php?error=" . urlencode("Email already exists. Use a different email or login."));
+                exit();
+            } else {
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $insert_stmt = $db->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password)");
+                $insert_stmt->bindValue(':name', $name, SQLITE3_TEXT);
+                $insert_stmt->bindValue(':email', $email, SQLITE3_TEXT);
+                $insert_stmt->bindValue(':password', $hashed_password, SQLITE3_TEXT);
+                
+                if ($insert_stmt->execute()) {
+                    $user_id = $db->lastInsertRowID();
+                    
+                    // Auto login
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['user_name'] = $name;
+                    $_SESSION['user_email'] = $email;
+                    
+                    header("Location: explore.php?success=" . urlencode("Account created successfully!"));
+                    exit();
+                } else {
+                    header("Location: signup.php?error=" . urlencode("An error occurred during signup"));
+                    exit();
+                }
+            }
+            $db->close();
+        } catch (Exception $e) {
+            header("Location: signup.php?error=" . urlencode("Database error"));
             exit();
         }
-        
-        $conn->query("CREATE DATABASE IF NOT EXISTS econova_db");
-        $conn->select_db("econova_db");
-        
-        $table_sql = "CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )";
-        $conn->query($table_sql);
-
-        $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $check_stmt->bind_param("s", $email);
-        $check_stmt->execute();
-        $check_result = $check_stmt->get_result();
-
-        if ($check_result->num_rows > 0) {
-            echo json_encode(["success" => false, "error" => "Email is already registered. Please log in."]);
-        } else {
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $insert_stmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-            $insert_stmt->bind_param("sss", $name, $email, $hashed_password);
-            
-            if ($insert_stmt->execute()) {
-                echo json_encode(["success" => true]);
-            } else {
-                echo json_encode(["success" => false, "error" => "An error occurred while creating your account."]);
-            }
-            $insert_stmt->close();
-        }
-        $check_stmt->close();
-        $conn->close();
     } else {
-        echo json_encode(["success" => false, "error" => "Please fill in all fields."]);
+        header("Location: signup.php?error=" . urlencode("Please fill in all fields."));
+        exit();
     }
 } else {
-    echo json_encode(["success" => false, "error" => "Invalid request method."]);
+    header("Location: signup.php");
+    exit();
 }
 ?>

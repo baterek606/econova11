@@ -1,3 +1,12 @@
+<?php
+session_set_cookie_params([
+    'lifetime' => 86400 * 30,
+    'path' => '/',
+    'secure' => false,
+    'httponly' => true
+]);
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,15 +27,16 @@
 
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo">Econova</a>
+      <a href="index.php" class="logo">Econova</a>
 
       <nav class="nav center-nav">
-        <a href="explore.html" class="nav-link active">Explore</a>
-        <a href="campaigns.html" class="nav-link">Campaigns</a>
+        <a href="index.php" class="nav-link active">Home</a>
+        <a href="explore.php" class="nav-link">Explore</a>
+        <a href="campaigns.php" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>
 
-      <div class="nav-actions">
+            <div class="nav-actions">
         <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
@@ -34,6 +44,8 @@
           </svg>
           <input type="text" placeholder="Search stewardship...">
         </div>
+        
+        <?php if (isset($_SESSION['user_id'])): ?>
         <div class="icons">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -45,17 +57,33 @@
           </svg>
         </div>
         <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
-          <a href="login.html" class="login-link">Login</a>
-          <a href="signup.html" class="btn-join">Join Us</a>
+          <span style="font-weight: 600; color: var(--text-main);">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+          <a href="api_logout.php" class="btn btn-outline btn-sm" style="text-decoration:none;">Logout</a>
         </div>
-        <div id="auth-buttons" style="display: flex; align-items: center;">
-          <a href="login.html" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
-          <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
+        <?php else: ?>
+        <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
+          <a href="login.php" class="login-link">Login</a>
+          <a href="signup.php" class="btn-join">Join Us</a>
         </div>
+        <?php endif; ?>
       </div>
     </header>
 
     <main>
+      <?php if (isset($_GET['success'])): ?>
+      <div id="toast-success" style="position: fixed; top: 20px; right: 20px; background-color: #2e7d32; color: #ffffff; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500; font-family: 'Inter', sans-serif; z-index: 9999; transition: opacity 0.5s ease-out; opacity: 1;">
+          <?php echo htmlspecialchars($_GET['success']); ?>
+      </div>
+      <script>
+          setTimeout(function() {
+              var toast = document.getElementById('toast-success');
+              if (toast) {
+                  toast.style.opacity = '0';
+                  setTimeout(function() { toast.remove(); }, 500);
+              }
+          }, 3000);
+      </script>
+      <?php endif; ?>
       <!-- Hero Section -->
       <section class="home-hero">
         <div class="hero-text">
@@ -70,7 +98,7 @@
             in real-time.
           </p>
           <div class="hero-actions">
-            <a href="signup.html" class="btn btn-dark" style="text-decoration:none;">Start a Campaign &rarr;</a>
+            <a href="signup.php" class="btn btn-dark" style="text-decoration:none;">Start a Campaign &rarr;</a>
             <button class="btn btn-outline" style="border-color: var(--text-green); color: var(--text-green);">View
               Global Map</button>
           </div>
@@ -193,6 +221,9 @@
           <a href="#">Privacy</a>
           <a href="#">Terms</a>
           <a href="#">Cookies</a>
+          <?php if(isset($_SESSION['user_email']) && $_SESSION['user_email'] === 'admin@econova.com'): ?>
+            <a href="db_viewer.php" style="color: var(--text-green); font-weight: 600;">DB Viewer</a>
+          <?php endif; ?>
         </div>
       </div>
     </footer>
