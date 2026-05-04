@@ -18,7 +18,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Signup Logic
+  const signupForm = document.getElementById('signupForm');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('fullName').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
+      if (!name || !email || !password) {
+        return alert('Please fill in all fields');
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('userId', data.user.id);
+          window.location.href = 'profile.html';
+        } else {
+          alert(data.error || 'Signup failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Connection error');
+      }
+    });
+  }
+
+  // Login Logic
+  const loginForm = document.getElementById('auth-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        return alert('Please enter both email and password');
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('userId', data.user.id);
+          window.location.href = 'index.html';
+        } else {
+          alert(data.error || 'Login failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Connection error');
+      }
+    });
+  }
 
   // Fetching Data Logic for Home Page
   const postsContainer = document.getElementById('postsContainer');
@@ -50,19 +115,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateNavbar() {
-  const authButtons = document.getElementById('auth-buttons');
-  if (!authButtons) return;
+  if (!currentUser) return;
 
-  if (currentUser) {
-    authButtons.innerHTML = `
-      <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, ${currentUser.name}</span>
-      <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
-      <a href="#" onclick="logoutUser(event)" class="btn btn-outline btn-sm">Logout</a>
-    `;
-  } else {
-    authButtons.innerHTML = `
-      <a href="login.html" class="nav-link" style="margin-left: 16px; margin-right: 16px; font-weight: 600; color: var(--text-main);">Login</a>
-      <a href="signup.html" class="btn btn-dark btn-sm" style="text-decoration:none;">Join Us</a>
+  const navActions = document.querySelector('.nav-actions');
+  if (navActions) {
+    navActions.innerHTML = `
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" placeholder="Search...">
+      </div>
+      <a href="profile.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: 15px;">
+        <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background-image: url('${currentUser.avatar || 'https://i.pravatar.cc/150?u=' + currentUser.email}'); background-size: cover; background-position: center;"></div>
+        <span style="font-weight: 600; font-size: 14px; color: var(--text-main);">${currentUser.name.split(' ')[0]}</span>
+      </a>
+      <button onclick="logout()" class="btn btn-outline btn-sm">Logout</button>
     `;
   }
 }
@@ -399,7 +468,7 @@ const explorePosts = [
 function renderGoalMock() {
   const goalTitle = document.getElementById('goalTitle');
   if (!goalTitle) return;
-  
+
   goalTitle.textContent = 'Plant 10,000 Trees this Month';
   document.getElementById('goalCurrent').textContent = '8,500 planted';
   document.getElementById('goalPercent').textContent = '85%';
@@ -410,7 +479,7 @@ function renderGoalMock() {
 function renderExplorePosts(posts) {
   const container = document.getElementById('explorePostsContainer');
   if (!container) return;
-  
+
   if (!posts || posts.length === 0) {
     container.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">No impact stories found for this ecosystem.</p>';
     return;
@@ -489,29 +558,29 @@ function renderExplorePosts(posts) {
 function initFilters() {
   const filterBtns = document.querySelectorAll('.filter-btn');
   if (filterBtns.length === 0) return;
-  
+
   filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       filterBtns.forEach(b => b.classList.remove('active'));
       const targetBtn = e.currentTarget;
       targetBtn.classList.add('active');
       const category = targetBtn.dataset.category;
-      
+
       const filtered = category === 'all' ? explorePosts : explorePosts.filter(p => p.category === category);
       renderExplorePosts(filtered);
     });
   });
 }
 
-window.toggleLike = function(id) {
+window.toggleLike = function (id) {
   const post = explorePosts.find(p => p.id === id);
   if (post) {
     post.liked = !post.liked;
     post.likes_count += post.liked ? 1 : -1;
-    
+
     const countEl = document.getElementById(`like-count-${id}`);
     if (countEl) countEl.textContent = post.likes_count;
-    
+
     const btn = countEl.closest('.like-btn');
     if (btn) {
       btn.style.color = post.liked ? 'var(--text-green)' : 'inherit';
@@ -523,14 +592,14 @@ window.toggleLike = function(id) {
   }
 }
 
-window.toggleCommentInput = function(id) {
+window.toggleCommentInput = function (id) {
   const section = document.getElementById(`comments-section-${id}`);
   if (section) {
     section.style.display = section.style.display === 'none' ? 'block' : 'none';
   }
 }
 
-window.addComment = function(id) {
+window.addComment = function (id) {
   const post = explorePosts.find(p => p.id === id);
   const input = document.getElementById(`comment-input-${id}`);
   if (post && input && input.value.trim() !== '') {
@@ -538,10 +607,10 @@ window.addComment = function(id) {
     const user = currentUser ? currentUser.name : 'Anonymous User';
     post.comments.push({ user, text });
     post.comments_count++;
-    
+
     const countEl = document.getElementById(`comment-count-${id}`);
     if (countEl) countEl.textContent = post.comments_count;
-    
+
     const listEl = document.getElementById(`comments-list-${id}`);
     if (listEl) {
       const commentHtml = `
@@ -552,7 +621,7 @@ window.addComment = function(id) {
       listEl.insertAdjacentHTML('beforeend', commentHtml);
       listEl.scrollTop = listEl.scrollHeight;
     }
-    
+
     input.value = '';
   }
 }
