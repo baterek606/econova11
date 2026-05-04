@@ -30,7 +30,8 @@ session_start();
       <a href="index.php" class="logo">Econova</a>
 
       <nav class="nav center-nav">
-        <a href="explore.php" class="nav-link active">Explore</a>
+        <a href="index.php" class="nav-link active">Home</a>
+        <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
       </nav>

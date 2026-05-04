@@ -72,6 +72,7 @@ try {
       <a href="index.php" class="logo">Econova</a>
 
       <nav class="nav center-nav">
+        <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link active">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>

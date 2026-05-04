@@ -45,6 +45,7 @@ if (isset($_SESSION['user_id'])) {
     <header class="header home-header">
       <a href="index.php" class="logo">Econova</a>
       <nav class="nav center-nav">
+        <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
         <a href="#" class="nav-link">Map</a>
