@@ -56,7 +56,7 @@ try {
         <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link active">Campaigns</a>
-        <a href="#" class="nav-link">Map</a>
+        <a href="map.php" class="nav-link">Map</a>
       </nav>
 
             <div class="nav-actions">
@@ -74,10 +74,12 @@ try {
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
+          <a href="profile.php" style="color: inherit; text-decoration: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </a>
         </div>
         <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
           <span style="font-weight: 600; color: var(--text-main);">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
@@ -148,39 +150,41 @@ try {
                 $date = date('M d, Y', strtotime($camp['created_at']));
                 $stewardsText = $camp['status'] === 'ACTIVE' ? 'Stewardship Partners' : 'Pre-registered';
                 ?>
-                <div class="campaign-card">
-                    <div class="card-image-wrapper">
-                        <img src="<?php echo htmlspecialchars($camp['image_url']); ?>" alt="<?php echo htmlspecialchars($camp['title']); ?>" class="card-image">
-                        <div class="card-badge <?php echo htmlspecialchars($camp['status']); ?>"><?php echo htmlspecialchars($camp['status']); ?></div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-date"><?php echo htmlspecialchars($date); ?></div>
-                        <h3 class="card-title"><?php echo htmlspecialchars($camp['title']); ?></h3>
-                        
-                        <div class="card-meta">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            <span><?php echo htmlspecialchars($camp['location']); ?></span>
+                <a href="map.php?id=<?php echo $camp['id']; ?>" class="campaign-link" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="campaign-card">
+                        <div class="card-image-wrapper">
+                            <img src="<?php echo htmlspecialchars($camp['image_url']); ?>" alt="<?php echo htmlspecialchars($camp['title']); ?>" class="card-image">
+                            <div class="card-badge <?php echo htmlspecialchars($camp['status']); ?>"><?php echo htmlspecialchars($camp['status']); ?></div>
                         </div>
-                        
-                        <div class="card-meta">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            <span><?php echo htmlspecialchars($camp['stewards_count']) . ' ' . $stewardsText; ?></span>
-                        </div>
-                        
-                        <div class="card-bottom">
-                            <div class="progress-container">
-                                <div class="progress-text">
-                                    <span><?php echo $progressLabel; ?></span>
-                                    <span><?php echo htmlspecialchars($camp['progress_percent']); ?>%</span>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" style="width: <?php echo htmlspecialchars($camp['progress_percent']); ?>%;"></div>
-                                </div>
+                        <div class="card-content">
+                            <div class="card-date"><?php echo htmlspecialchars($date); ?></div>
+                            <h3 class="card-title"><?php echo htmlspecialchars($camp['title']); ?></h3>
+                            
+                            <div class="card-meta">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <span><?php echo htmlspecialchars($camp['location']); ?></span>
                             </div>
-                            <button class="join-btn" onclick="if(document.querySelector('.btn-join')){ alert('Please login to join'); window.location.href='login.php'; } else { alert('You joined this campaign!'); }">Join</button>
+                            
+                            <div class="card-meta">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                <span><?php echo htmlspecialchars($camp['stewards_count']) . ' ' . $stewardsText; ?></span>
+                            </div>
+                            
+                            <div class="card-bottom">
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span><?php echo $progressLabel; ?></span>
+                                        <span><?php echo htmlspecialchars($camp['progress_percent']); ?>%</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: <?php echo htmlspecialchars($camp['progress_percent']); ?>%;"></div>
+                                    </div>
+                                </div>
+                                <button class="join-btn" onclick="event.preventDefault(); event.stopPropagation(); if(document.querySelector('.btn-join')){ alert('Please login to join'); window.location.href='login.php'; } else { alert('You joined this campaign!'); }">Join</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             <?php endforeach; ?>
         <?php endif; ?>
       </section>

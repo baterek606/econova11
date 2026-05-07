@@ -33,7 +33,7 @@ session_start();
         <a href="index.php" class="nav-link active">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
-        <a href="#" class="nav-link">Map</a>
+        <a href="map.php" class="nav-link">Map</a>
       </nav>
 
             <div class="nav-actions">
