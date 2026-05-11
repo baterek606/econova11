@@ -6,7 +6,7 @@ session_set_cookie_params([
     'httponly' => true
 ]);
 session_start();
-
+require_once 'functions.php';
 // 1. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -135,14 +135,14 @@ try {
             margin: 0;
         }
 
-        .header { background: white; padding: 16px 40px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 24px; font-weight: 700; color: var(--accent-green); text-decoration: none; }
-        .center-nav { display: flex; gap: 32px; }
-        .nav-link { font-size: 14px; font-weight: 500; color: var(--text-muted); text-decoration: none; }
+        .header { background: white; padding: 16px 40px; border-bottom: 1px solid #eee; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px !important; font-weight: 700 !important; color: #2d6a4f !important; text-decoration: none; }
+        .center-nav { display: flex; gap: 32px; flex: 1; justify-content: center; }
+        .nav-link { font-size: 14px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+        .nav-link:hover { color: #2d6a4f; }
         .nav-actions { display: flex; align-items: center; gap: 16px; }
-        .btn-create { background: #1a2e1f; color: white; padding: 8px 24px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .btn-create { background: #2d6a4f; color: white; padding: 8px 24px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; }
 
-        .profile-wrapper { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
 
         /* Profile Header Section */
         .profile-grid { display: grid; grid-template-columns: 320px 1fr; gap: 40px; margin-bottom: 60px; }
@@ -258,20 +258,24 @@ try {
     </style>
 </head>
 <body>
+  <div class="page-container">
     <header class="header">
         <a href="index.php" class="logo">Econova</a>
         <nav class="center-nav">
+            <a href="index.php" class="nav-link">Home</a>
             <a href="explore.php" class="nav-link">Explore</a>
             <a href="campaigns.php" class="nav-link">Campaigns</a>
-            <a href="map.php" class="nav-link">Map</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a>
         </nav>
         <div class="nav-actions">
-            <a href="profile.php" class="user-profile"><img src="https://i.pravatar.cc/100?u=<?php echo urlencode($userData['name'] ?? 'user'); ?>" alt="User" style="width:32px; height:32px; border-radius:50%;"></a>
-            <a href="#" class="btn-create">Create</a>
+            <!-- <a href="profile.php" class="user-profile"><img src="user.png" style="width:32px; height:32px; border-radius:50%;"></a> -->
+            <span <?php if(getUserScore($_SESSION['user_id']) >= 500): ?>class="score-badge tooltip-enabled" onclick="openRewardsModal()"<?php else: ?>class="score-badge"<?php endif; ?> style="font-weight: 600; color: #2e7d32; background: #e8f2ec; padding: 4px 12px; border-radius: 20px; font-size: 14px; position: relative; cursor: <?php echo (getUserScore($_SESSION['user_id']) >= 500) ? 'pointer' : 'default'; ?>;">🌱 <?php echo number_format(getUserScore($_SESSION['user_id'])); ?> pts</span>
+            <a href="create_post.php" class="btn-create">Create</a>
+            <a href="api_logout.php" class="btn btn-outline btn-sm" style="text-decoration:none;">Logout</a>
         </div>
     </header>
 
-    <main class="profile-wrapper">
+    <main>
         <div class="profile-grid">
             <div class="profile-card-left">
                 <div class="avatar-box">
@@ -424,6 +428,7 @@ try {
             </div>
         </div>
     </footer>
+  </div>
 
     <div id="upload-msg">Profile picture updated!</div>
 

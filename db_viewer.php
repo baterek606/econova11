@@ -73,7 +73,7 @@ $tables = $tables_stmt->fetchAll(PDO::FETCH_ASSOC);
           <nav class="nav center-nav">
             <a href="explore.php" class="nav-link">Explore</a>
             <a href="campaigns.php" class="nav-link">Campaigns</a>
-            <a href="#" class="nav-link">Map</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a><!-- <a href="#" class="nav-link">Map</a> -->
           </nav>
           <div class="nav-actions">
             <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">

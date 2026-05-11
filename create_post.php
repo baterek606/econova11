@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require_once 'functions.php';
 // Redirect to login if user is not authenticated
 // Note: For testing purposes, if you haven't implemented login yet, you can comment these 4 lines out
 // and hardcode a $user_id = 1; below.
@@ -10,122 +10,105 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// Database connection parameters
-$servername = "localhost";
-$username = "root"; // Update with your DB username
-$password = "";     // Update with your DB password
-$dbname = "econova_db";
-
 $error = '';
 $success = '';
 
-// Create connection
-$conn = new mysqli($servername, $username, $password);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Create database if it doesn't exist
-$sql = "CREATE DATABASE IF NOT EXISTS $dbname";
-$conn->query($sql);
-$conn->select_db($dbname);
-
-// Create table if it doesn't exist
-$table_sql = "CREATE TABLE IF NOT EXISTS impact_posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    before_image VARCHAR(255) NOT NULL,
-    after_image VARCHAR(255) NOT NULL,
-    location VARCHAR(255) NOT NULL,
-    story TEXT NOT NULL,
-    impact_stats TEXT,
-    likes INT DEFAULT 0,
-    comments INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)";
-$conn->query($table_sql);
-
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $title = $conn->real_escape_string($_POST['title']);
-    $category = $conn->real_escape_string($_POST['category']);
-    $location = $conn->real_escape_string($_POST['location']);
-    $story = $conn->real_escape_string($_POST['story']);
+try {
+    $db = new PDO('sqlite:' . __DIR__ . '/econova.db');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Impact stats (optional)
-    $plastic_removed = isset($_POST['plastic']) ? $conn->real_escape_string($_POST['plastic']) : '';
-    $trees_planted = isset($_POST['trees']) ? $conn->real_escape_string($_POST['trees']) : '';
-    $stats_json = json_encode(['plastic_lbs' => $plastic_removed, 'trees_planted' => $trees_planted]);
+    // Ensure table exists
+    $db->exec("CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        user_name TEXT,
+        location TEXT,
+        title TEXT,
+        description TEXT,
+        category TEXT,
+        likes_count INTEGER DEFAULT 0,
+        comments_count INTEGER DEFAULT 0,
+        before_image TEXT,
+        after_image TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
 
-    // Ensure uploads directory exists
-    $upload_dir = 'uploads/';
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $title = trim($_POST['title']);
+        $category = trim($_POST['category']);
+        $location = trim($_POST['location']);
+        $story = trim($_POST['story']);
 
-    $before_image = '';
-    $after_image = '';
-    $uploadOk = 1;
+        // Handle File Uploads
+        $upload_dir = 'uploads/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
 
-    // Handle Before Image
-    if (isset($_FILES['before_image']) && $_FILES['before_image']['error'] == 0) {
-        $file_info = pathinfo($_FILES['before_image']['name']);
-        $ext = strtolower($file_info['extension']);
+        $before_image = 'local'; // default if optional or failed
+        $after_image = 'local';
+        
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        
-        if (in_array($ext, $allowed)) {
-            $before_image = $upload_dir . uniqid('before_') . '.' . $ext;
-            if (!move_uploaded_file($_FILES['before_image']['tmp_name'], $before_image)) {
-                $error = "Failed to upload before image.";
-                $uploadOk = 0;
-            }
-        } else {
-            $error = "Invalid file type for before image.";
-            $uploadOk = 0;
-        }
-    } else {
-        $error = "Before image is required.";
-        $uploadOk = 0;
-    }
 
-    // Handle After Image
-    if ($uploadOk == 1 && isset($_FILES['after_image']) && $_FILES['after_image']['error'] == 0) {
-        $file_info = pathinfo($_FILES['after_image']['name']);
-        $ext = strtolower($file_info['extension']);
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        
-        if (in_array($ext, $allowed)) {
-            $after_image = $upload_dir . uniqid('after_') . '.' . $ext;
-            if (!move_uploaded_file($_FILES['after_image']['tmp_name'], $after_image)) {
-                $error = "Failed to upload after image.";
-                $uploadOk = 0;
+        if (isset($_FILES['before_image']) && $_FILES['before_image']['error'] == 0) {
+            $ext = strtolower(pathinfo($_FILES['before_image']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $allowed)) {
+                $before_image = $upload_dir . uniqid('before_') . '.' . $ext;
+                move_uploaded_file($_FILES['before_image']['tmp_name'], $before_image);
             }
-        } else {
-            $error = "Invalid file type for after image.";
-            $uploadOk = 0;
         }
-    } else if ($uploadOk == 1) {
-        $error = "After image is required.";
-        $uploadOk = 0;
-    }
+        if (isset($_FILES['after_image']) && $_FILES['after_image']['error'] == 0) {
+            $ext = strtolower(pathinfo($_FILES['after_image']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $allowed)) {
+                $after_image = $upload_dir . uniqid('after_') . '.' . $ext;
+                move_uploaded_file($_FILES['after_image']['tmp_name'], $after_image);
+            }
+        }
 
-    // Insert to DB if uploads successful
-    if ($uploadOk == 1 && empty($error)) {
-        $insert_sql = "INSERT INTO impact_posts (user_id, title, category, before_image, after_image, location, story, impact_stats) 
-                       VALUES ('$user_id', '$title', '$category', '$before_image', '$after_image', '$location', '$story', '$stats_json')";
+        // Insert into posts
+        $stmt = $db->prepare("INSERT INTO posts (user_id, user_name, title, category, before_image, after_image, location, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $user_id, 
+            $_SESSION['user_name'], 
+            $title, 
+            $category, 
+            $before_image, 
+            $after_image, 
+            $location, 
+            $story
+        ]);
         
-        if ($conn->query($insert_sql) === TRUE) {
-            $success = "Impact post created successfully! Thank you for your stewardship.";
-        } else {
-            $error = "Error: " . $conn->error;
+        // Extract trees planted from story using Regex
+        // Match things like "planted 50 trees", "50 trees planted", etc.
+        $treesPlanted = 0;
+        if (preg_match('/(?:planted\s+)?(\d+)\s+trees?(?:\s+planted)?/i', $story, $matches)) {
+            $treesPlanted = (int)$matches[1];
+        } else if (preg_match('/(\d+)\s+trees/i', $story, $matches)) {
+            $treesPlanted = (int)$matches[1];
         }
+
+        // Add points if trees were planted
+        if ($treesPlanted > 0) {
+            $points_earned = $treesPlanted * 50;
+            
+            // Check if user has stats row
+            $stat_check = $db->prepare("SELECT id FROM user_stats WHERE user_id = ?");
+            $stat_check->execute([$user_id]);
+            if ($stat_check->fetch()) {
+                $update_stat = $db->prepare("UPDATE user_stats SET trees_planted = trees_planted + ?, score = score + ? WHERE user_id = ?");
+                $update_stat->execute([$treesPlanted, $points_earned, $user_id]);
+            } else {
+                $insert_stat = $db->prepare("INSERT INTO user_stats (user_id, trees_planted, score) VALUES (?, ?, ?)");
+                $insert_stat->execute([$user_id, $treesPlanted, $points_earned]);
+            }
+        }
+
+        header("Location: explore.php?success=" . urlencode("Impact post created successfully!"));
+        exit();
     }
+} catch (PDOException $e) {
+    $error = "Database Error: " . $e->getMessage();
 }
-$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -146,26 +129,27 @@ $conn->close();
     
     <!-- Top navigation bar -->
     <header class="header home-header">
-      <a href="index.html" class="logo" style="color: var(--text-main);">Econova</a>
+      <a href="index.php" class="logo" style="color: var(--text-main);">Econova</a>
       
       <nav class="nav center-nav">
-        <a href="explore.html" class="nav-link">Explore</a>
-        <a href="#" class="nav-link">Campaigns</a>
-        <a href="#" class="nav-link">Map</a>
+        <a href="explore.php" class="nav-link">Explore</a>
+        <a href="campaign.php" class="nav-link">Campaigns</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a>
       </nav>
 
       <div class="nav-actions">
-        <div class="search-box">
+        <!-- <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" placeholder="Search stewardship...">
-        </div>
+        </div> -->
         <div class="icons">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <!-- <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> -->
+          <a href="profile.php"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></a>
         </div>
+        <span <?php if(getUserScore($_SESSION['user_id']) >= 500): ?>class="score-badge tooltip-enabled" onclick="openRewardsModal()"<?php else: ?>class="score-badge"<?php endif; ?> style="font-weight: 600; color: #2e7d32; background: #e8f2ec; padding: 4px 12px; border-radius: 20px; font-size: 14px; position: relative; cursor: <?php echo (getUserScore($_SESSION['user_id']) >= 500) ? 'pointer' : 'default'; ?>;">🌱 <?php echo number_format(getUserScore($_SESSION['user_id'])); ?> pts</span>
         <span style="font-weight: 600; margin-left: 15px; margin-right: 15px; color: var(--text-main);">Hi, <span id="php-user-name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span></span>
         <a href="create_post.php" class="btn" style="background-color: var(--text-green); color: white; margin-right: 15px; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 20px;">+ New Impact</a>
-        <a href="#" onclick="logoutUser(event)" class="btn btn-outline btn-sm">Logout</a>
+        <!-- <a href="#" onclick="logoutUser(event)" class="btn btn-outline btn-sm">Logout</a> -->
       </div>
     </header>
 

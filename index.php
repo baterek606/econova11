@@ -6,6 +6,7 @@ session_set_cookie_params([
     'httponly' => true
 ]);
 session_start();
+require_once 'functions.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,30 +34,27 @@ session_start();
         <a href="index.php" class="nav-link active">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
-        <a href="map.php" class="nav-link">Map</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a>
       </nav>
 
             <div class="nav-actions">
-        <div class="search-box">
+        <!-- <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input type="text" placeholder="Search stewardship...">
-        </div>
+        </div> -->
         
         <?php if (isset($_SESSION['user_id'])): ?>
         <div class="icons">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+         <a href="profile.php"> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
             <circle cx="12" cy="7" r="4"></circle>
-          </svg>
+          </svg></a>
         </div>
         <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
+          <span <?php if(getUserScore($_SESSION['user_id']) >= 500): ?>class="score-badge tooltip-enabled" onclick="openRewardsModal()"<?php else: ?>class="score-badge"<?php endif; ?> style="font-weight: 600; color: #2e7d32; background: #e8f2ec; padding: 4px 12px; border-radius: 20px; font-size: 14px; position: relative; cursor: <?php echo (getUserScore($_SESSION['user_id']) >= 500) ? 'pointer' : 'default'; ?>;">🌱 <?php echo number_format(getUserScore($_SESSION['user_id'])); ?> pts</span>
           <span style="font-weight: 600; color: var(--text-main);">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
           <a href="api_logout.php" class="btn btn-outline btn-sm" style="text-decoration:none;">Logout</a>
         </div>
@@ -182,8 +180,8 @@ session_start();
               <div class="card-content">
                 <p class="title-small">Top Stewards this Month</p>
                 <div class="steward-list" id="stewardsContainer"></div>
-                <button class="btn btn-outline w-full" style="padding: 8px; font-size: 13px; margin-top: 16px;">View
-                  Leaderboard</button>
+                <a href="leaderboard.php"><button class="btn btn-outline w-full" style="padding: 8px; font-size: 13px; margin-top: 16px;">View
+                  Leaderboard</button></a>
               </div>
             </div>
           </div>
@@ -241,7 +239,7 @@ session_start();
       });
     }
   </script>
-  <script src="script.js"></script>
+  <script src="script.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>

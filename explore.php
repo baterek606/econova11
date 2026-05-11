@@ -6,7 +6,7 @@ session_set_cookie_params([
     'httponly' => true
 ]);
 session_start();
-
+require_once 'functions.php';
 $category = isset($_GET['category']) ? $_GET['category'] : 'all';
 
 // Mock Goal Data
@@ -44,6 +44,23 @@ try {
         $stmt->execute([':category' => $category]);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    foreach ($posts as &$p) {
+        $stmt = $db->prepare("SELECT COUNT(*) FROM post_likes WHERE post_id = ?");
+        $stmt->execute([$p['id']]);
+        $p['likes_count'] = $stmt->fetchColumn();
+
+        $stmt = $db->prepare("SELECT COUNT(*) FROM post_comments WHERE post_id = ?");
+        $stmt->execute([$p['id']]);
+        $p['comments_count'] = $stmt->fetchColumn();
+        
+        $p['user_liked'] = false;
+        if (isset($_SESSION['user_id'])) {
+            $stmt = $db->prepare("SELECT COUNT(*) FROM post_likes WHERE post_id = ? AND user_id = ?");
+            $stmt->execute([$p['id'], $_SESSION['user_id']]);
+            $p['user_liked'] = $stmt->fetchColumn() > 0;
+        }
+    }
 } catch(PDOException $e) {
     // If table doesn't exist or error occurs
     $posts = [];
@@ -75,24 +92,20 @@ try {
         <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link active">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
-        <a href="map.php" class="nav-link">Map</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a>
       </nav>
 
             <div class="nav-actions">
-        <div class="search-box">
+        <!-- <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input type="text" placeholder="Search stewardship...">
-        </div>
+        </div> -->
         
         <?php if (isset($_SESSION['user_id'])): ?>
         <div class="icons">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
           <a href="profile.php" style="color: inherit; text-decoration: none;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -101,6 +114,7 @@ try {
           </a>
         </div>
         <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
+          <span <?php if(getUserScore($_SESSION['user_id']) >= 500): ?>class="score-badge tooltip-enabled" onclick="openRewardsModal()"<?php else: ?>class="score-badge"<?php endif; ?> style="font-weight: 600; color: #2e7d32; background: #e8f2ec; padding: 4px 12px; border-radius: 20px; font-size: 14px; position: relative; cursor: <?php echo (getUserScore($_SESSION['user_id']) >= 500) ? 'pointer' : 'default'; ?>;">🌱 <?php echo number_format(getUserScore($_SESSION['user_id'])); ?> pts</span>
           <span style="font-weight: 600; color: var(--text-main);">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
           <a href="api_logout.php" class="btn btn-outline btn-sm" style="text-decoration:none;">Logout</a>
         </div>
@@ -292,13 +306,22 @@ try {
                   <div class="feed-actions">
                     <div class="stats">
                       <?php 
-                        $onclickLike = "if(document.querySelector('.btn-join')){ alert('Please login to like'); window.location.href='login.php'; } else { likeExplorePost(" . $p['id'] . "); }";
-                        $onclickComment = "if(document.querySelector('.btn-join')){ alert('Please login to comment'); window.location.href='login.php'; } else { commentExplorePost(" . $p['id'] . "); }";
+                        $onclickLike = "if(document.querySelector('.btn-join')){ alert('Please login first'); window.location.href='login.php'; } else { toggleLike(" . $p['id'] . "); }";
+                        $onclickComment = "if(document.querySelector('.btn-join')){ alert('Please login first'); window.location.href='login.php'; } else { toggleCommentSection(" . $p['id'] . "); }";
+                        $heartIcon = !empty($p['user_liked']) ? '❤️' : '♡';
                       ?>
-                      <span style="cursor:pointer" onclick="<?php echo $onclickLike; ?>">♡ <span id="like-count-<?php echo $p['id']; ?>" data-raw="<?php echo $p['likes_count']; ?>"><?php echo $p['likes_count'] >= 1000 ? number_format($p['likes_count']/1000, 1).'k' : $p['likes_count']; ?></span></span>
+                      <span id="like-btn-<?php echo $p['id']; ?>" style="cursor:pointer;" onclick="<?php echo $onclickLike; ?>"><?php echo $heartIcon; ?> <span id="like-count-<?php echo $p['id']; ?>" data-raw="<?php echo $p['likes_count']; ?>"><?php echo $p['likes_count'] >= 1000 ? number_format($p['likes_count']/1000, 1).'k' : $p['likes_count']; ?></span></span>
                       <span style="cursor:pointer" onclick="<?php echo $onclickComment; ?>">💬 <span id="comment-count-<?php echo $p['id']; ?>" data-raw="<?php echo $p['comments_count']; ?>"><?php echo $p['comments_count'] >= 1000 ? number_format($p['comments_count']/1000, 1).'k' : $p['comments_count']; ?></span></span>
                     </div>
                     <span class="badge small" style="margin: 0; background-color: var(--bg-badge); color: var(--text-green);">#<?php echo strtoupper(htmlspecialchars($p['category'])); ?></span>
+                  </div>
+                  <!-- Comments Section -->
+                  <div id="comments-section-<?php echo $p['id']; ?>" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                    <div id="comments-list-<?php echo $p['id']; ?>" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; font-size: 13px;"></div>
+                    <div style="display:flex; gap:8px;">
+                        <textarea id="comment-input-<?php echo $p['id']; ?>" placeholder="Write a comment..." style="flex:1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; resize:vertical; min-height:36px;"></textarea>
+                        <button onclick="submitComment(<?php echo $p['id']; ?>)" class="btn btn-dark" style="padding: 6px 12px; font-size: 13px; height:fit-content;">Post</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -352,7 +375,7 @@ try {
     </footer>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=<?php echo time(); ?>"></script>
   <script>
     window.toggleSlider = function(postId, target) {
       const imgBefore = document.getElementById(`img-before-${postId}`);
@@ -368,20 +391,6 @@ try {
         imgBefore.classList.remove('hidden');
         badge.textContent = 'BEFORE';
       }
-    };
-
-    window.likeExplorePost = function(id) {
-      const el = document.getElementById(`like-count-${id}`);
-      let count = parseInt(el.getAttribute('data-raw'), 10) + 1;
-      el.setAttribute('data-raw', count);
-      el.textContent = count >= 1000 ? (count/1000).toFixed(1) + 'k' : count;
-    };
-
-    window.commentExplorePost = function(id) {
-      const el = document.getElementById(`comment-count-${id}`);
-      let count = parseInt(el.getAttribute('data-raw'), 10) + 1;
-      el.setAttribute('data-raw', count);
-      el.textContent = count >= 1000 ? (count/1000).toFixed(1) + 'k' : count;
     };
   </script>
 </body>

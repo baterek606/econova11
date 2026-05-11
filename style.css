@@ -508,3 +508,48 @@ input {
 .footer-grid a { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
 .footer-bottom { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); padding-top: 24px; border-top: 1px solid var(--border-color); }
 .legal a { margin-left: 24px; color: inherit; }
+
+/* Score Badge Tooltip */
+.score-badge.tooltip-enabled:hover::after {
+    content: 'Click to redeem rewards';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background: #333;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+}
+.score-badge.tooltip-enabled:hover::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 2px;
+    border-width: 0 6px 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}

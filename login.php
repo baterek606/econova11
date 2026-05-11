@@ -48,7 +48,7 @@ if (isset($_SESSION['user_id'])) {
         <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link">Campaigns</a>
-        <a href="#" class="nav-link">Map</a>
+        <!-- <a href="map.php" class="nav-link">Map</a> -->
       </nav>
       <div class="nav-actions">
         <!-- New conditional Auth UI goes here! -->

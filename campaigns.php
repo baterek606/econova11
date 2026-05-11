@@ -6,7 +6,7 @@ session_set_cookie_params([
     'httponly' => true
 ]);
 session_start();
-
+require_once 'functions.php';
 $category = isset($_GET['category']) ? $_GET['category'] : 'all';
 $campaigns = [];
 try {
@@ -56,24 +56,20 @@ try {
         <a href="index.php" class="nav-link">Home</a>
         <a href="explore.php" class="nav-link">Explore</a>
         <a href="campaigns.php" class="nav-link active">Campaigns</a>
-        <a href="map.php" class="nav-link">Map</a>
+        <a href="leaderboard.php" class="nav-link">Leaderboard</a>
       </nav>
 
             <div class="nav-actions">
-        <div class="search-box">
+        <!-- <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input type="text" placeholder="Search campaigns...">
-        </div>
+        </div> -->
         
         <?php if (isset($_SESSION['user_id'])): ?>
         <div class="icons">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
           <a href="profile.php" style="color: inherit; text-decoration: none;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -82,6 +78,7 @@ try {
           </a>
         </div>
         <div id="authWrapper" style="display: flex; align-items: center; gap: 16px;">
+          <span <?php if(getUserScore($_SESSION['user_id']) >= 500): ?>class="score-badge tooltip-enabled" onclick="openRewardsModal()"<?php else: ?>class="score-badge"<?php endif; ?> style="font-weight: 600; color: #2e7d32; background: #e8f2ec; padding: 4px 12px; border-radius: 20px; font-size: 14px; position: relative; cursor: <?php echo (getUserScore($_SESSION['user_id']) >= 500) ? 'pointer' : 'default'; ?>;">🌱 <?php echo number_format(getUserScore($_SESSION['user_id'])); ?> pts</span>
           <span style="font-weight: 600; color: var(--text-main);">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
           <a href="api_logout.php" class="btn btn-outline btn-sm" style="text-decoration:none;">Logout</a>
         </div>
@@ -180,7 +177,7 @@ try {
                                         <div class="progress-bar-fill" style="width: <?php echo htmlspecialchars($camp['progress_percent']); ?>%;"></div>
                                     </div>
                                 </div>
-                                <button class="join-btn" onclick="event.preventDefault(); event.stopPropagation(); if(document.querySelector('.btn-join')){ alert('Please login to join'); window.location.href='login.php'; } else { alert('You joined this campaign!'); }">Join</button>
+                                <button class="join-btn" onclick="event.preventDefault(); event.stopPropagation(); if(document.querySelector('.btn-join')){ alert('Please login to join'); window.location.href='login.php'; } else { joinCampaign(<?php echo $camp['id']; ?>); }">Join</button>
                             </div>
                         </div>
                     </div>

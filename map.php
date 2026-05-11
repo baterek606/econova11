@@ -6,7 +6,7 @@ session_set_cookie_params([
     'httponly' => true
 ]);
 session_start();
-
+require_once 'functions.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $campaign = null;
 
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; }
         .header { background: white; padding: 16px 40px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 24px; font-weight: 700; color: #2e7d32; text-decoration: none; }
         .nav-links { display: flex; gap: 24px; }

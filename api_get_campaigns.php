@@ -25,7 +25,11 @@ try {
     // Format the date if needed, matching frontend expected format
     foreach ($campaigns as &$camp) {
         $camp['date'] = date('M d, Y', strtotime($camp['created_at']));
-        $camp['engagement_count'] = $camp['stewards_count'];
+        if (!isset($camp['engagement_count']) && isset($camp['stewards_count'])) {
+            $camp['engagement_count'] = $camp['stewards_count'];
+        } else if (isset($camp['engagement_count']) && !isset($camp['stewards_count'])) {
+            $camp['stewards_count'] = $camp['engagement_count'];
+        }
     }
 
     echo json_encode($campaigns);
